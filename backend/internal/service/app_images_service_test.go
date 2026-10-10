@@ -63,8 +63,9 @@ func TestAppImagesService_GetImageWithDefault(t *testing.T) {
 		payload, err := io.ReadAll(reader)
 		require.NoError(t, err)
 		assert.Equal(t, int64(len(payload)), size)
-		assert.Equal(t, "image/svg+xml", mimeType)
-		assert.True(t, strings.HasPrefix(string(payload), "<svg"))
+		// YuriID ships a raster (PNG) logo instead of Pocket ID's SVG
+		assert.Equal(t, "image/png", mimeType)
+		assert.True(t, strings.HasPrefix(string(payload), "\x89PNG"))
 	})
 
 	t.Run("returns not found if no embedded image exists", func(t *testing.T) {

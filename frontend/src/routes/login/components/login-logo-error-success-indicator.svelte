@@ -1,33 +1,15 @@
 <script lang="ts">
 	import Logo from '#lib/components/logo.svelte';
-	import CheckmarkAnimated from '#lib/icons/checkmark-animated.svelte';
-	import CrossAnimated from '#lib/icons/cross-animated.svelte';
-	import { fade } from 'svelte/transition';
 
+	// YuriID: the logo always stays; errors/successes are shown as plain text by the page.
+	// The props are kept so existing callers keep compiling.
 	const {
-		error,
-		success
+		error: _error,
+		success: _success
 	}: {
 		error?: boolean;
 		success?: boolean;
 	} = $props();
 </script>
 
-<div
-	class="rounded-2xl transition-[background-color] duration-300
-		 {error ? 'bg-red-200 p-3' : success ? 'bg-green-200 p-3' : ''}"
->
-	{#if error || success}
-		<div class="flex size-10 items-center justify-center">
-			{#if error}
-				<CrossAnimated class="size-5" />
-			{:else}
-				<CheckmarkAnimated class="size-5" />
-			{/if}
-		</div>
-	{:else}
-		<div in:fade={{ duration: 300 }}>
-			<Logo class="size-14 rounded-2xl border object-cover" />
-		</div>
-	{/if}
-</div>
+<Logo class="size-24 rounded-3xl border object-cover shadow-sm" />

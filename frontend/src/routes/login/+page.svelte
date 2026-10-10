@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import SignInWrapper from '#lib/components/login-wrapper.svelte';
 	import { Button } from '#lib/components/ui/button/index.ts';
 	import { Input } from '#lib/components/ui/input/index.ts';
@@ -84,7 +85,7 @@
 	<title>{m.sign_in()} · {$appConfigStore.appName}</title>
 </svelte:head>
 
-<SignInWrapper showAlternativeSignInMethodButton>
+<SignInWrapper>
 	<div class="flex justify-center">
 		<LoginLogoErrorSuccessIndicator error={!!error} />
 	</div>
@@ -97,15 +98,11 @@
 		</p>
 	{:else if info}
 		<p class="text-muted-foreground mt-2 text-sm" in:fade>{info}</p>
-	{:else}
-		<p class="text-muted-foreground mt-2" in:fade>
-			{m.sign_in_with_password_subtitle()}
-		</p>
 	{/if}
 
 	<form class="mt-8 w-full max-w-[320px] space-y-3 text-left" onsubmit={signInWithPassword}>
 		<div class="space-y-1.5">
-			<Label for="identifier" class="text-xs">{m.email_or_username()}</Label>
+			<Label for="identifier" class="text-xs">{m.username_or_email()}</Label>
 			<Input
 				id="identifier"
 				name="username"
@@ -154,11 +151,20 @@
 				onclick={resendVerification}>{m.resend_verification_email()}</button
 			>
 		{/if}
-		{#if $appConfigStore.allowUserSignups === 'open'}
-			<p class="text-muted-foreground pt-2 text-center text-xs">
-				{m.no_account()}
-				<a href="/signup" class="text-primary font-medium hover:underline">{m.sign_up_link()}</a>
-			</p>
-		{/if}
+		<div
+			class="text-muted-foreground flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-2 text-xs"
+		>
+			{#if $appConfigStore.allowUserSignups === 'open'}
+				<span>
+					{m.no_account()}
+					<a href="/signup" class="text-primary font-medium hover:underline">{m.sign_up_link()}</a>
+				</span>
+				<span aria-hidden="true" class="opacity-40">·</span>
+			{/if}
+			<a
+				href={'/login/alternative' + page.url.search}
+				class="hover:text-foreground transition-colors">{m.alternative_sign_in_methods()}</a
+			>
+		</div>
 	</form>
 </SignInWrapper>

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -34,15 +35,16 @@ func TestAppImagesControllerGetLogo(t *testing.T) {
 		res, err := getLogo(t, appImagesController, "/api/application-images/logo")
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, res.Code)
-		assert.Equal(t, "image/svg+xml", res.Header().Get("Content-Type"))
-		assert.Contains(t, res.Body.String(), `fill="#000"`)
+		// YuriID ships a raster (PNG) logo instead of Pocket ID's SVG
+		assert.Equal(t, "image/png", res.Header().Get("Content-Type"))
+		assert.True(t, strings.HasPrefix(res.Body.String(), "\x89PNG"))
 	})
 
 	t.Run("returns the bundled dark mode logo if no custom logo is set", func(t *testing.T) {
 		res, err := getLogo(t, appImagesController, "/api/application-images/logo?light=false")
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, res.Code)
-		assert.Contains(t, res.Body.String(), `fill="#fff"`)
+		assert.True(t, strings.HasPrefix(res.Body.String(), "\x89PNG"))
 	})
 
 	t.Run("returns not found if the bundled logo is skipped", func(t *testing.T) {

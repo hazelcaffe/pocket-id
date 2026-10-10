@@ -13,7 +13,10 @@
 		/^\/device$/,
 		/^\/login(?:\/.*)?$/,
 		/^\/logout$/,
-		/^\/signup(?:\/.*)?$/
+		/^\/signup(?:\/.*)?$/,
+		/^\/forgot-password$/,
+		/^\/reset-password$/,
+		/^\/verify-account$/
 	];
 
 	let isAuthPage = $derived(

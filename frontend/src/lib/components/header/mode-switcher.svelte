@@ -1,32 +1,22 @@
 <script lang="ts">
 	import MoonIcon from '@lucide/svelte/icons/moon';
 	import SunIcon from '@lucide/svelte/icons/sun';
+	import { mode, setMode } from 'mode-watcher';
 
-	import { buttonVariants } from '#lib/components/ui/button/index.js';
-	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
-	import { m } from '#lib/paraglide/messages.js';
-	import { mode, resetMode, setMode } from 'mode-watcher';
-
+	// YuriID: plain icon button. Follows the system theme until clicked; the choice is then persisted by mode-watcher.
 	const isDark = $derived(mode.current === 'dark');
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
-		<SunIcon
-			class="h-[1.2rem] w-[1.2rem] !transition-all {isDark
-				? 'scale-0 -rotate-90'
-				: 'scale-100 rotate-0'}"
-		/>
-		<MoonIcon
-			class="absolute h-[1.2rem] w-[1.2rem] !transition-all {isDark
-				? 'scale-100 rotate-0'
-				: 'scale-0 rotate-90'}"
-		/>
-		<span class="sr-only">Toggle theme</span>
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content align="end">
-		<DropdownMenu.Item onclick={() => setMode('light')}>{m.light()}</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => setMode('dark')}>{m.dark()}</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => resetMode()}>{m.system()}</DropdownMenu.Item>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<button
+	type="button"
+	class="text-muted-foreground hover:text-foreground focus-visible:ring-ring/40 inline-flex size-9 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2"
+	title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+	aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+	onclick={() => setMode(isDark ? 'light' : 'dark')}
+>
+	{#if isDark}
+		<MoonIcon class="size-[1.15rem]" />
+	{:else}
+		<SunIcon class="size-[1.15rem]" />
+	{/if}
+</button>

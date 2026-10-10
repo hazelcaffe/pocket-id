@@ -25,7 +25,8 @@
 			sent = true;
 		} catch (e) {
 			// Only rate limiting / validation errors can surface here; account existence never does
-			error = getApiErrorCode(e) === 'rate_limited' ? m.please_try_again() : getAxiosErrorMessage(e);
+			error =
+				getApiErrorCode(e) === 'rate_limited' ? m.please_try_again() : getAxiosErrorMessage(e);
 		}
 		isLoading = false;
 	}
@@ -45,9 +46,9 @@
 	{#if error}
 		<p class="text-destructive mt-2 text-sm" role="alert" in:fade>{error}</p>
 	{:else}
-		<p class="text-muted-foreground mt-2 max-w-[360px]" in:fade>
-			{sent ? m.reset_link_sent() : m.forgot_password_subtitle()}
-		</p>
+		{#if sent}
+			<p class="text-muted-foreground mt-2 max-w-[360px]" in:fade>{m.reset_link_sent()}</p>
+		{/if}
 	{/if}
 	{#if !sent}
 		<form class="mt-8 w-full max-w-[320px] space-y-3 text-left" onsubmit={submit}>
@@ -60,7 +61,9 @@
 			</div>
 		</form>
 	{/if}
-	<a href="/login" class="text-muted-foreground hover:text-foreground mt-6 text-xs transition-colors"
+	<a
+		href="/login"
+		class="text-muted-foreground hover:text-foreground mt-6 text-xs transition-colors"
 		>{m.back_to_sign_in()}</a
 	>
 </SignInWrapper>

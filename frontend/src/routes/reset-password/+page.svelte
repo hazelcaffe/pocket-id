@@ -97,7 +97,13 @@
 			</div>
 			<div class="space-y-1.5">
 				<Label for="confirm" class="text-xs">{m.confirm_password()}</Label>
-				<Input id="confirm" type="password" autocomplete="new-password" required bind:value={confirm} />
+				<Input
+					id="confirm"
+					type="password"
+					autocomplete="new-password"
+					required
+					bind:value={confirm}
+				/>
 			</div>
 			<div class="pt-2">
 				<Button type="submit" class="w-full" {isLoading}>{m.set_new_password()}</Button>

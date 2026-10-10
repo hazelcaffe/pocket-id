@@ -104,16 +104,6 @@
 				{@render children()}
 			</div>
 		</main>
-		<div class="animate-fade-in flex flex-col items-center" style="animation-delay: 400ms;">
-			<p class="text-muted-foreground py-3 text-xs">
-				{m.powered_by()}
-				<a
-					class="text-foreground transition-all hover:underline"
-					href="https://github.com/pocket-id/pocket-id"
-					target="_blank">Pocket ID</a
-				>
-				({versionInformation.currentVersion})
-			</p>
-		</div>
+		<!-- YuriID: "Powered by" footer removed -->
 	</div>
 </section>

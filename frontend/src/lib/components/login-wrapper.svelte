@@ -57,9 +57,7 @@
 			? 'justify-start'
 			: 'justify-center'}"
 	>
-		<div
-			class="relative z-10 flex h-full w-full max-w-[600px] px-10 py-16 2xl:max-w-[720px]"
-		>
+		<div class="relative z-10 flex h-full w-full max-w-[600px] px-10 py-16 2xl:max-w-[720px]">
 			<div class="flex h-full w-full flex-col overflow-hidden">
 				<div class="relative flex grow flex-col items-center justify-center overflow-auto p-1">
 					{@render children()}
@@ -83,10 +81,8 @@
 			>
 				<img
 					src={cachedBackgroundImage.getUrl()}
-					class="{cn(
-						animate && 'animate-bg-zoom'
-					)} h-full w-full object-cover"
-					style="object-position: var(--login-bg-position, 55% 35%);"
+					class="{cn(animate && 'animate-bg-zoom')} h-full w-full object-cover"
+					style="object-position: var(--login-bg-position, 42% 22%);"
 					alt={m.login_background()}
 				/>
 			</div>
@@ -95,7 +91,7 @@
 {:else}
 	<div
 		class="flex min-h-dvh items-center justify-center bg-cover text-center"
-		style="background-image: url({cachedBackgroundImage.getUrl()}); background-position: var(--login-bg-position, 55% 35%);"
+		style="background-image: url({cachedBackgroundImage.getUrl()}); background-position: var(--login-bg-position, 42% 22%);"
 	>
 		<Card.Root
 			class={{

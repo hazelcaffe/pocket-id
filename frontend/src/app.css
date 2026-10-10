@@ -150,9 +150,11 @@
 
 	/* Font */
 	/* YuriID: headings that used Gloock now use the display font */
-	--font-gloock: 'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-gloock:
+		'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-	--font-display: 'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-display:
+		'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 	--color-sidebar: var(--sidebar);
 	--color-chart-5: var(--chart-5);
 	--color-chart-4: var(--chart-4);

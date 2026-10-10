@@ -43,14 +43,13 @@
 
 <SignInWrapper>
 	<div class="flex h-full flex-col justify-center">
-		<div class="bg-muted mx-auto rounded-2xl p-3">
-			<Logo class="size-10" />
+		<div class="flex justify-center">
+			<Logo class="size-24 rounded-3xl border object-cover shadow-sm" />
 		</div>
-		<h1 class="font-gloock mt-5 text-3xl font-bold sm:text-4xl">{m.alternative_sign_in()}</h1>
-		<p class="text-muted-foreground mt-3">
-			{m.if_you_do_not_have_access_to_your_passkey_you_can_sign_in_using_one_of_the_following_methods()}
-		</p>
-		<Item.Group class="mt-5 gap-3">
+		<h1 class="font-display mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
+			{m.alternative_sign_in()}
+		</h1>
+		<Item.Group class="mt-8 gap-3">
 			{#each methods as method (method.href)}
 				<Item.Root variant="outline" class="gap-5">
 					{#snippet child({ props })}
@@ -70,9 +69,5 @@
 				</Item.Root>
 			{/each}
 		</Item.Group>
-
-		<a class="text-muted-foreground mt-5 text-xs" href={'/login' + page.url.search}
-			>{m.use_your_passkey_instead()}</a
-		>
 	</div>
 </SignInWrapper>

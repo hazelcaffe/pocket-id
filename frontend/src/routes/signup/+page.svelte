@@ -69,7 +69,7 @@
 				{m.check_your_email()}
 			</h1>
 			<p class="text-muted-foreground mt-2 max-w-[360px]" in:fade>
-				{m.signup_check_email_description({ email: sentTo })}
+				{m.signup_sent_prefix()} <b class="text-foreground font-semibold">{sentTo}</b>.
 			</p>
 			<div class="mt-8 w-full max-w-[320px]">
 				<Button class="w-full" href="/login">{m.back_to_sign_in()}</Button>
@@ -84,12 +84,10 @@
 			</div>
 		{:else}
 			<h1 class="font-display mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
-				{m.signup_to_appname({ appName: $appConfigStore.appName })}
+				{m.signup()}
 			</h1>
 			{#if error}
 				<p class="text-destructive mt-2 text-sm" role="alert" in:fade>{error}</p>
-			{:else}
-				<p class="text-muted-foreground mt-2" in:fade>{m.create_free_account_subtitle()}</p>
 			{/if}
 
 			<form class="mt-8 w-full max-w-[320px] space-y-3 text-left" onsubmit={submit}>
@@ -109,7 +107,14 @@
 				</div>
 				<div class="space-y-1.5">
 					<Label for="email" class="text-xs">{m.email()}</Label>
-					<Input id="email" name="email" type="email" autocomplete="email" required bind:value={email} />
+					<Input
+						id="email"
+						name="email"
+						type="email"
+						autocomplete="email"
+						required
+						bind:value={email}
+					/>
 				</div>
 				<div class="space-y-1.5">
 					<Label for="password" class="text-xs">{m.password()}</Label>
