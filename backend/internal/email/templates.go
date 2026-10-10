@@ -64,9 +64,26 @@ type apiKeyExpiringSoonTemplateData struct {
 	ExpiresAt  time.Time
 }
 
+// YuriID: generic account notice (used so signup and reset responses never reveal whether an account exists)
+var accountNoticeTemplate = template[emailVerificationTemplateData]{
+	path: "account-notice",
+	title: func(data *templateData[emailVerificationTemplateData]) string {
+		return "About your " + data.AppName + " account"
+	},
+}
+
+// YuriID: password reset email (reuses the verification template data shape)
+var passwordResetTemplate = template[emailVerificationTemplateData]{
+	path: "password-reset",
+	title: func(data *templateData[emailVerificationTemplateData]) string {
+		return "Reset your " + data.AppName + " password"
+	},
+}
+
 type emailVerificationTemplateData struct {
 	UserFullName     string
 	VerificationLink string
+	Message          string
 }
 
 var templatePaths = []string{
@@ -75,4 +92,6 @@ var templatePaths = []string{
 	testTemplate.path,
 	apiKeyExpiringSoonTemplate.path,
 	emailVerificationTemplate.path,
+	passwordResetTemplate.path,
+	accountNoticeTemplate.path,
 }

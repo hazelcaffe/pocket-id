@@ -1,85 +1,148 @@
 <script lang="ts">
 	import SignInWrapper from '#lib/components/login-wrapper.svelte';
-	import SignupForm from '#lib/components/signup/signup-form.svelte';
+	import TokenSignup from '#lib/components/signup/token-signup.svelte';
 	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import { m } from '#lib/paraglide/messages.js';
-	import UserService from '#lib/services/user-service.ts';
+	import PasswordService from '#lib/services/password-service.ts';
 	import appConfigStore from '#lib/stores/application-configuration-store.ts';
-	import userStore from '#lib/stores/user-store.ts';
-	import type { UserSignUp } from '#lib/types/user.type.ts';
 	import { getAxiosErrorMessage } from '#lib/utils/error-util.ts';
-	import { tryCatch } from '#lib/utils/try-catch-util.ts';
-	import { goto } from '$app/navigation';
-	import { LucideChevronLeft } from '@lucide/svelte';
-	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import LoginLogoErrorSuccessIndicator from '../login/components/login-logo-error-success-indicator.svelte';
 
 	let { data } = $props();
-	const userService = new UserService();
+	const passwordService = new PasswordService();
 
+	let username = $state('');
+	let email = $state('');
+	let password = $state('');
+	let confirm = $state('');
+	let isLoading = $state(false);
 	let error: string | undefined = $state();
+	let sentTo: string | undefined = $state();
 
-	async function handleSignup(userData: UserSignUp) {
-		const result = await tryCatch(userService.signup({ ...userData, token: data.token }));
+	const usernamePattern = /^[a-zA-Z0-9]([a-zA-Z0-9_.@-]*[a-zA-Z0-9])?$/;
 
-		if (result.error) {
-			error = getAxiosErrorMessage(result.error);
-			return false;
-		}
-
-		await userStore.setUser(result.data);
-
-		goto('/');
-		return true;
-	}
-
-	onMount(() => {
-		if (!$appConfigStore.allowUserSignups || $appConfigStore.allowUserSignups === 'disabled') {
-			error = m.user_signups_are_disabled();
+	async function submit(e: SubmitEvent) {
+		e.preventDefault();
+		error = undefined;
+		if (!usernamePattern.test(username.trim())) {
+			error = m.username_can_only_contain();
 			return;
 		}
-
-		// For token-based signups, check if we have a valid token
-		if ($appConfigStore.allowUserSignups === 'withToken' && !data.token) {
-			error = m.signup_requires_valid_token();
+		if ([...password].length < 10) {
+			error = m.password_too_short();
+			return;
 		}
-	});
+		if (password !== confirm) {
+			error = m.passwords_do_not_match();
+			return;
+		}
+		isLoading = true;
+		try {
+			await passwordService.signup({ username: username.trim(), email: email.trim(), password });
+			sentTo = email.trim();
+			password = '';
+			confirm = '';
+		} catch (e) {
+			error = getAxiosErrorMessage(e);
+		}
+		isLoading = false;
+	}
 </script>
 
 <svelte:head>
-	<title>{m.signup()}</title>
+	<title>{m.create_account()} · {$appConfigStore.appName}</title>
 </svelte:head>
 
-<SignInWrapper>
-	<div class="flex justify-center">
-		<LoginLogoErrorSuccessIndicator error={!!error} />
-	</div>
-
-	<h1 class="font-gloock mt-5 text-3xl font-bold sm:text-4xl">
-		{m.signup_to_appname({ appName: $appConfigStore.appName })}
-	</h1>
-
-	{#if !error}
-		<p class="text-muted-foreground mt-2" in:fade>
-			{m.create_your_account_to_get_started()}
-		</p>
-	{:else}
-		<p class="text-muted-foreground mt-2" in:fade>
-			{error}.
-		</p>
-	{/if}
-	{#if $appConfigStore.allowUserSignups === 'open' || data.token}
-		<SignupForm callback={handleSignup} />
-		<div class="mt-10 flex w-full items-center justify-between gap-2">
-			<a class="text-muted-foreground mt-5 flex text-sm" href="/login"
-				><LucideChevronLeft class="size-5" /> {m.back()}</a
-			>
-			<Button type="submit" form="sign-up-form" onclick={() => (error = undefined)}
-				>{m.signup()}</Button
-			>
+{#if data.token}
+	<TokenSignup token={data.token} />
+{:else}
+	<SignInWrapper>
+		<div class="flex justify-center">
+			<LoginLogoErrorSuccessIndicator error={!!error} success={!!sentTo} />
 		</div>
-	{:else}
-		<Button class="mt-10" href="/login">{m.go_to_login()}</Button>
-	{/if}
-</SignInWrapper>
+
+		{#if sentTo}
+			<h1 class="font-display mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
+				{m.check_your_email()}
+			</h1>
+			<p class="text-muted-foreground mt-2 max-w-[360px]" in:fade>
+				{m.signup_check_email_description({ email: sentTo })}
+			</p>
+			<div class="mt-8 w-full max-w-[320px]">
+				<Button class="w-full" href="/login">{m.back_to_sign_in()}</Button>
+			</div>
+		{:else if $appConfigStore.allowUserSignups !== 'open'}
+			<h1 class="font-display mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
+				{m.create_account()}
+			</h1>
+			<p class="text-muted-foreground mt-2">{m.user_signups_are_disabled()}.</p>
+			<div class="mt-8 w-full max-w-[320px]">
+				<Button class="w-full" href="/login">{m.back_to_sign_in()}</Button>
+			</div>
+		{:else}
+			<h1 class="font-display mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
+				{m.signup_to_appname({ appName: $appConfigStore.appName })}
+			</h1>
+			{#if error}
+				<p class="text-destructive mt-2 text-sm" role="alert" in:fade>{error}</p>
+			{:else}
+				<p class="text-muted-foreground mt-2" in:fade>{m.create_free_account_subtitle()}</p>
+			{/if}
+
+			<form class="mt-8 w-full max-w-[320px] space-y-3 text-left" onsubmit={submit}>
+				<div class="space-y-1.5">
+					<Label for="username" class="text-xs">{m.username()}</Label>
+					<Input
+						id="username"
+						name="username"
+						autocomplete="username"
+						autocapitalize="none"
+						spellcheck="false"
+						maxlength={50}
+						required
+						bind:value={username}
+						autofocus
+					/>
+				</div>
+				<div class="space-y-1.5">
+					<Label for="email" class="text-xs">{m.email()}</Label>
+					<Input id="email" name="email" type="email" autocomplete="email" required bind:value={email} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="password" class="text-xs">{m.password()}</Label>
+					<Input
+						id="password"
+						name="new-password"
+						type="password"
+						autocomplete="new-password"
+						minlength={10}
+						maxlength={256}
+						required
+						bind:value={password}
+					/>
+					<p class="text-muted-foreground text-xs">{m.password_requirements()}</p>
+				</div>
+				<div class="space-y-1.5">
+					<Label for="confirm" class="text-xs">{m.confirm_password()}</Label>
+					<Input
+						id="confirm"
+						type="password"
+						autocomplete="new-password"
+						required
+						bind:value={confirm}
+					/>
+				</div>
+				<div class="pt-2">
+					<Button type="submit" class="w-full" {isLoading}>{m.create_account()}</Button>
+				</div>
+				<p class="text-muted-foreground pt-2 text-center text-xs">
+					{m.already_have_account()}
+					<a href="/login" class="text-primary font-medium hover:underline">{m.sign_in()}</a>
+				</p>
+			</form>
+		{/if}
+	</SignInWrapper>
+{/if}

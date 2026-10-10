@@ -16,6 +16,7 @@
 	import { startRegistration } from '@simplewebauthn/browser';
 	import { toast } from 'svelte-sonner';
 	import AccountForm from './account-form.svelte';
+	import ChangePassword from './change-password.svelte';
 	import LocalePicker from './locale-picker.svelte';
 	import PasskeyList from './passkey-list.svelte';
 	import RenamePasskeyModal from './rename-passkey-modal.svelte';
@@ -23,6 +24,7 @@
 	let { data } = $props();
 	let account = $state(data.account);
 	let passkeys = $state(data.passkeys);
+	let hasPassword = $state(data.hasPassword);
 	let passkeyToRename: Passkey | null = $state(null);
 	const userService = new UserService();
 	const webauthnService = new WebAuthnService();
@@ -53,7 +55,7 @@
 	<title>{m.account_settings()}</title>
 </svelte:head>
 
-{#if passkeys.length == 0}
+{#if passkeys.length == 0 && !hasPassword}
 	<Alert.Root variant="warning" class="flex gap-3">
 		<LucideAlertTriangle class="size-4" />
 		<div class="md:flex md:w-full md:place-content-between">
@@ -70,7 +72,7 @@
 			</div>
 		</div>
 	</Alert.Root>
-{:else if passkeys.length == 1}
+{:else if passkeys.length == 1 && !hasPassword}
 	<Alert.Root variant="warning" dismissibleId="single-passkey" class="flex gap-3">
 		<LucideAlertTriangle class="size-4" />
 		<div>
@@ -99,6 +101,8 @@
 		/>
 	</Card.Content>
 </Card.Root>
+
+<ChangePassword bind:hasPassword />
 
 <Item.Group class="bg-card rounded-4xl border p-5 shadow-sm">
 	<Item.Root class="border-none bg-transparent p-0">

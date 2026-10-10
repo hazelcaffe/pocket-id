@@ -13,6 +13,7 @@ export function getAuthRedirectPath(url: URL, user: User | null) {
 		path == '/lc' ||
 		path == '/signup' ||
 		path == '/signup/setup' ||
+		path == '/forgot-password' ||
 		path == '/setup' ||
 		path.startsWith('/st/');
 
@@ -22,6 +23,8 @@ export function getAuthRedirectPath(url: URL, user: User | null) {
 			'/interaction',
 			'/interaction/error',
 			'/login/alternative/code',
+			'/verify-account',
+			'/reset-password',
 			'/device',
 			'/health',
 			'/healthz'

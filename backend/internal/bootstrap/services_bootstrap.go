@@ -25,6 +25,7 @@ import (
 	"github.com/pocket-id/pocket-id/backend/internal/oidc"
 	"github.com/pocket-id/pocket-id/backend/internal/onetimeaccess"
 	"github.com/pocket-id/pocket-id/backend/internal/outbound"
+	"github.com/pocket-id/pocket-id/backend/internal/passwordauth"
 	"github.com/pocket-id/pocket-id/backend/internal/scimsync"
 	"github.com/pocket-id/pocket-id/backend/internal/service"
 	"github.com/pocket-id/pocket-id/backend/internal/storage"
@@ -54,6 +55,7 @@ type services struct {
 	webauthnModule          *webauthn.Module
 	userSignUpModule        *usersignup.Module
 	oneTimeAccessModule     *onetimeaccess.Module
+	passwordAuthModule      *passwordauth.Module
 	emailVerificationModule *emailverification.Module
 	apiModule               *api.Module
 	environmentModule       *environment.Module
@@ -249,6 +251,16 @@ func initServices(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create one-time access module: %w", err)
 	}
+
+	svc.passwordAuthModule = passwordauth.New(passwordauth.Dependencies{
+		DB:          db,
+		Signer:      svc.jwtService,
+		AuditLog:    svc.auditLogsModule,
+		UserCreator: svc.userService,
+		EmailSender: svc.emailModule,
+		AppConfig:   svc.appConfigService,
+		AppURL:      common.EnvConfig.AppURL,
+	})
 
 	svc.emailVerificationModule, err = emailverification.New(emailverification.Dependencies{
 		DB:          db,

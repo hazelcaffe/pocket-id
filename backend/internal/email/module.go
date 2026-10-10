@@ -98,6 +98,29 @@ func (m *Module) SendEmailVerification(ctx context.Context, dbConfig *appconfig.
 	})
 }
 
+// SendAccountNotice sends a short YuriID account notice with a link
+func (m *Module) SendAccountNotice(ctx context.Context, dbConfig *appconfig.AppConfigModel, userFullName, userEmail, message, link string) error {
+	return send(ctx, m, dbConfig, address{
+		name:  userFullName,
+		email: userEmail,
+	}, accountNoticeTemplate, &emailVerificationTemplateData{
+		UserFullName:     userFullName,
+		VerificationLink: link,
+		Message:          message,
+	})
+}
+
+// SendPasswordReset sends a YuriID password reset link
+func (m *Module) SendPasswordReset(ctx context.Context, dbConfig *appconfig.AppConfigModel, userFullName, userEmail, resetLink string) error {
+	return send(ctx, m, dbConfig, address{
+		name:  userFullName,
+		email: userEmail,
+	}, passwordResetTemplate, &emailVerificationTemplateData{
+		UserFullName:     userFullName,
+		VerificationLink: resetLink,
+	})
+}
+
 func (m *Module) SendOneTimeAccessEmail(ctx context.Context, dbConfig *appconfig.AppConfigModel, userFullName, userEmail, code, loginLink, loginLinkWithCode, expirationString string) error {
 	return send(ctx, m, dbConfig, address{
 		name:  userFullName,
@@ -142,6 +165,12 @@ func send[V any](ctx context.Context, module *Module, dbConfig *appconfig.AppCon
 		LogoURL: common.EnvConfig.AppURL + "/api/application-images/email",
 		AppURL:  common.EnvConfig.AppURL,
 		Data:    data,
+	}
+
+	// YuriID: drop mail to recipients outside EMAIL_RECIPIENT_ALLOWLIST (if configured) before touching SMTP
+	if !recipientAllowed(recipient.email) {
+		logBlockedRecipient(tmpl.path)
+		return nil
 	}
 
 	// Render the complete message before opening an SMTP connection so template failures never produce partial deliveries

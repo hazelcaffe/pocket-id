@@ -1,3 +1,4 @@
+import PasswordService from '#lib/services/password-service.ts';
 import StorageService from '#lib/services/storage-service.ts';
 import VersionService from '#lib/services/version-service.ts';
 import WebAuthnService from '#lib/services/webauthn-service.ts';
@@ -9,13 +10,18 @@ export const load: LayoutLoad = async ({ url }) => {
 	const versionService = new VersionService();
 	const storageService = new StorageService();
 	const webauthnService = new WebAuthnService();
+	const passwordService = new PasswordService();
 
 	const currentVersion = versionService.getCurrentVersion();
 
-	const [newestVersion, sqliteStorageWarning, passkeys] = await Promise.all([
+	const [newestVersion, sqliteStorageWarning, passkeys, hasPassword] = await Promise.all([
 		versionService.getNewestVersion().catch(() => null),
 		storageService.getSqliteStorageWarning().catch(() => false),
-		webauthnService.listCredentials()
+		webauthnService.listCredentials(),
+		passwordService
+			.getOwnStatus()
+			.then((s) => s.hasPassword)
+			.catch(() => false)
 	]);
 
 	// If newestVersion is empty, it means the check is disabled or failed.
@@ -32,13 +38,20 @@ export const load: LayoutLoad = async ({ url }) => {
 	const skipPasskeySetup =
 		parseInt(localStorage.getItem('skip-passkey-setup-until') ?? '0') > Date.now();
 
-	if (!skipPasskeySetup && passkeys.length === 0 && url.pathname !== '/signup/add-passkey') {
+	// YuriID: users with a password are not forced to add a passkey (it stays optional)
+	if (
+		!skipPasskeySetup &&
+		!hasPassword &&
+		passkeys.length === 0 &&
+		url.pathname !== '/signup/add-passkey'
+	) {
 		redirect(303, '/signup/add-passkey');
 	}
 
 	return {
 		versionInformation,
 		sqliteStorageWarning,
-		passkeys
+		passkeys,
+		hasPassword
 	};
 };

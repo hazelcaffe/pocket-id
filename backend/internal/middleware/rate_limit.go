@@ -30,6 +30,12 @@ const (
 	RateLimitSendEmailVerification   = "send-email-verification"
 	RateLimitVerifyEmail             = "verify-email"
 	RateLimitInternal                = "internal"
+
+	// YuriID password authentication
+	RateLimitPasswordLogin  = "password-login"
+	RateLimitPasswordEmail  = "password-email"
+	RateLimitPasswordToken  = "password-token"
+	RateLimitPasswordChange = "password-change"
 )
 
 // RateLimitPolicy is the configuration for a single rate-limit actor
@@ -62,6 +68,10 @@ func RateLimitPolicies() []RateLimitPolicy {
 		{Name: RateLimitSendEmailVerification, Rate: 2, Per: 10 * time.Minute, Burst: 1},
 		{Name: RateLimitVerifyEmail, Rate: 1, Per: 10 * time.Second, Burst: 5},
 		{Name: RateLimitInternal, Rate: 20, Per: time.Second, Burst: 20},
+		{Name: RateLimitPasswordLogin, Rate: 1, Per: 3 * time.Second, Burst: 10},
+		{Name: RateLimitPasswordEmail, Rate: 2, Per: 10 * time.Minute, Burst: 5},
+		{Name: RateLimitPasswordToken, Rate: 1, Per: 5 * time.Second, Burst: 10},
+		{Name: RateLimitPasswordChange, Rate: 1, Per: 10 * time.Second, Burst: 5},
 	}
 }
 

@@ -43,7 +43,7 @@ func (s *service) CreateSignIn(ctx context.Context, event Event, ipAddress, user
 	var count int64
 	query := tx.WithContext(ctx).Model(&AuditLog{}).
 		Where("user_id = ? AND user_agent = ? AND id <> ?", userID, userAgent, entry.ID).
-		Where("event IN ?", []Event{EventSignIn, EventOneTimeAccessTokenSignIn, EventRemoteSignIn})
+		Where("event IN ?", []Event{EventSignIn, EventOneTimeAccessTokenSignIn, EventRemoteSignIn, EventPasswordSignIn})
 	if ipAddress == "" {
 		query = query.Where("ip_address IS NULL")
 	} else {
@@ -121,6 +121,8 @@ func signInMethod(event Event) string {
 		return "Passkey"
 	case EventOneTimeAccessTokenSignIn:
 		return "One-time code"
+	case EventPasswordSignIn:
+		return "Password"
 	case EventRemoteSignIn:
 		return "Another device (QR code)"
 	default:

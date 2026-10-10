@@ -28,6 +28,7 @@ import (
 	"github.com/pocket-id/pocket-id/backend/internal/common"
 	"github.com/pocket-id/pocket-id/backend/internal/controller"
 	"github.com/pocket-id/pocket-id/backend/internal/middleware"
+	"github.com/pocket-id/pocket-id/backend/internal/passwordauth"
 	"github.com/pocket-id/pocket-id/backend/internal/tracing"
 	"github.com/pocket-id/pocket-id/backend/internal/utils/systemd"
 )
@@ -191,6 +192,13 @@ func registerRoutes(r *gin.Engine, db *gorm.DB, svc *services, auth *authz.Middl
 		rateLimitMiddleware.Add(middleware.RateLimitSendEmailVerification),
 		rateLimitMiddleware.Add(middleware.RateLimitVerifyEmail),
 	)
+	svc.passwordAuthModule.RegisterRoutes(apiRouter, passwordauth.RateLimits{
+		Signup: rateLimitMiddleware.Add(middleware.RateLimitSignup),
+		Login:  rateLimitMiddleware.Add(middleware.RateLimitPasswordLogin),
+		Email:  rateLimitMiddleware.Add(middleware.RateLimitPasswordEmail),
+		Token:  rateLimitMiddleware.Add(middleware.RateLimitPasswordToken),
+		Change: rateLimitMiddleware.Add(middleware.RateLimitPasswordChange),
+	})
 	svc.oidcModule.RegisterRoutes(baseRouter, apiRouter)
 
 	registerTestRoutes(apiRouter, db, svc)

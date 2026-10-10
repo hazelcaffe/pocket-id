@@ -30,6 +30,7 @@ type Event string //nolint:recvcheck
 const (
 	EventSignIn                     Event = "SIGN_IN"
 	EventOneTimeAccessTokenSignIn   Event = "TOKEN_SIGN_IN"
+	EventPasswordSignIn             Event = "PASSWORD_SIGN_IN"
 	EventRemoteSignIn               Event = "REMOTE_SIGN_IN"
 	EventAccountCreated             Event = "ACCOUNT_CREATED"
 	EventClientAuthorization        Event = "CLIENT_AUTHORIZATION"
