@@ -64,9 +64,9 @@ func getDefaultImage(name string) (io.ReadCloser, int64, string, error) {
 	var imagePath string
 	switch name {
 	case "logoLight":
-		imagePath = "default-images/logoLight.svg"
+		imagePath = "default-images/logoLight.png"
 	case "logoDark":
-		imagePath = "default-images/logoDark.svg"
+		imagePath = "default-images/logoDark.png"
 	default:
 		return nil, 0, "", apperror.ImageNotFound()
 	}

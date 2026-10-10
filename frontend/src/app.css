@@ -34,77 +34,79 @@
 	}
 }
 
+/* YuriID palette (light): soft pink surfaces, dark plum text, raspberry accent */
 :root {
 	--radius: 0.625rem;
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
+	--background: #fdf0f5;
+	--foreground: #24182a;
+	--card: #fff8fb;
+	--card-foreground: #24182a;
+	--popover: #fff8fb;
+	--popover-foreground: #24182a;
+	--primary: #bf3264;
+	--primary-foreground: #fff5f9;
+	--secondary: #fbe4ee;
+	--secondary-foreground: #24182a;
+	--muted: #fbe4ee;
+	--muted-foreground: #76616f;
+	--accent: #f8d9e6;
+	--accent-foreground: #24182a;
+	--destructive: #e5484d;
 	--warning: oklch(0.96 0.06 85);
 	--warning-foreground: oklch(0.32 0.07 70);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
+	--border: #f0d2df;
+	--input: #ebc8d7;
+	--ring: #bf3264;
+	--chart-1: #bf3264;
+	--chart-2: #e07aa0;
+	--chart-3: #8a5a9e;
+	--chart-4: #f2b8cd;
+	--chart-5: #5e3a6e;
+	--sidebar: #fbe4ee;
+	--sidebar-foreground: #24182a;
+	--sidebar-primary: #bf3264;
+	--sidebar-primary-foreground: #fff5f9;
+	--sidebar-accent: #f8d9e6;
+	--sidebar-accent-foreground: #24182a;
+	--sidebar-border: #f0d2df;
+	--sidebar-ring: #bf3264;
 }
 
+/* YuriID palette (dark): near-black plum, raspberry accent (matches the hrtID reference) */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
+	--background: #1d171f;
+	--foreground: #faecf2;
+	--card: #261e29;
+	--card-foreground: #faecf2;
+	--popover: #261e29;
+	--popover-foreground: #faecf2;
+	--primary: #bf3264;
+	--primary-foreground: #fff1f6;
+	--secondary: #2e2433;
+	--secondary-foreground: #faecf2;
+	--muted: #2e2433;
+	--muted-foreground: #a99dab;
+	--accent: #332738;
+	--accent-foreground: #faecf2;
+	--destructive: #f2555a;
 	--warning: oklch(0.42 0.09 70);
 	--warning-foreground: oklch(0.93 0.03 85);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--border: #faecf21a;
+	--input: #faecf224;
+	--ring: #bf3264;
+	--chart-1: #bf3264;
+	--chart-2: #e07aa0;
+	--chart-3: #b58ac7;
+	--chart-4: #f2b8cd;
+	--chart-5: #8a5a9e;
+	--sidebar: #1d171f;
+	--sidebar-foreground: #faecf2;
+	--sidebar-primary: #bf3264;
+	--sidebar-primary-foreground: #fff1f6;
+	--sidebar-accent: #2e2433;
+	--sidebar-accent-foreground: #faecf2;
+	--sidebar-border: #faecf21a;
+	--sidebar-ring: #bf3264;
 }
 
 @theme inline {
@@ -147,7 +149,10 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 
 	/* Font */
-	--font-gloock: 'gloock', serif;
+	/* YuriID: headings that used Gloock now use the display font */
+	--font-gloock: 'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-display: 'Plus Jakarta Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 	--color-sidebar: var(--sidebar);
 	--color-chart-5: var(--chart-5);
 	--color-chart-4: var(--chart-4);
@@ -175,6 +180,23 @@
 	@font-face {
 		font-family: 'Gloock';
 		src: url('/fonts/Gloock-Regular.woff') format('woff');
+	}
+
+	/* YuriID fonts (SIL OFL, from fontsource) */
+	@font-face {
+		font-family: 'Inter Variable';
+		font-style: normal;
+		font-display: swap;
+		font-weight: 100 900;
+		src: url('/fonts/Inter-Variable-latin.woff2') format('woff2-variations');
+	}
+
+	@font-face {
+		font-family: 'Plus Jakarta Sans Variable';
+		font-style: normal;
+		font-display: swap;
+		font-weight: 200 800;
+		src: url('/fonts/PlusJakartaSans-Variable-latin.woff2') format('woff2-variations');
 	}
 }
 

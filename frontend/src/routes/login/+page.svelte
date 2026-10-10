@@ -36,14 +36,14 @@
 </script>
 
 <svelte:head>
-	<title>{m.sign_in()}</title>
+	<title>{m.sign_in()} · {$appConfigStore.appName}</title>
 </svelte:head>
 
 <SignInWrapper showAlternativeSignInMethodButton>
 	<div class="flex justify-center">
 		<LoginLogoErrorSuccessIndicator error={!!error} />
 	</div>
-	<h1 class="font-gloock mt-5 text-3xl font-bold sm:text-4xl">
+	<h1 class="font-display mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
 		{m.sign_in_to_appname({ appName: $appConfigStore.appName })}
 	</h1>
 	{#if error}
@@ -55,19 +55,16 @@
 			{m.authenticate_with_passkey_to_access_account()}
 		</p>
 	{/if}
-	<div class="mt-10 flex w-full max-w-[450px] justify-center gap-3">
-		{#if $appConfigStore.allowUserSignups === 'open'}
-			<Button class="w-[50%]" variant="secondary" href="/signup">
-				{m.signup()}
-			</Button>
-		{/if}
-		<Button
-			class={$appConfigStore.allowUserSignups === 'open' ? 'w-[50%]' : 'w-[80%] sm:w-[40%]'}
-			{isLoading}
-			onclick={authenticate}
-			autofocus={true}
-		>
+	<div class="mt-8 w-full max-w-[320px] space-y-3">
+		<Button class="w-full" {isLoading} onclick={authenticate} autofocus={true}>
 			{error ? m.try_again() : m.authenticate()}
 		</Button>
+		{#if $appConfigStore.allowUserSignups === 'open'}
+			<a
+				href="/signup"
+				class="text-muted-foreground hover:text-foreground block text-xs transition-colors"
+				>{m.signup()}</a
+			>
+		{/if}
 	</div>
 </SignInWrapper>

@@ -122,7 +122,7 @@ func getDefaultConfig() *AppConfigModel {
 	// Values are the default ones
 	return &AppConfigModel{
 		// General
-		AppName:                   "Pocket ID",
+		AppName:                   "YuriID",
 		SessionDuration:           "60",
 		HomePageURL:               "/settings/account",
 		EmailsVerified:            "false",

@@ -14,8 +14,8 @@
 </script>
 
 <div
-	class="rounded-2xl p-3 transition-[background-color] duration-300
-		 {error ? 'bg-red-200' : success ? 'bg-green-200' : 'bg-muted'}"
+	class="rounded-2xl transition-[background-color] duration-300
+		 {error ? 'bg-red-200 p-3' : success ? 'bg-green-200 p-3' : ''}"
 >
 	{#if error || success}
 		<div class="flex size-10 items-center justify-center">
@@ -27,7 +27,7 @@
 		</div>
 	{:else}
 		<div in:fade={{ duration: 300 }}>
-			<Logo class="size-10" />
+			<Logo class="size-14 rounded-2xl border object-cover" />
 		</div>
 	{/if}
 </div>

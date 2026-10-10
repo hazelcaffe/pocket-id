@@ -6,7 +6,7 @@ export interface SharedProps {
 
 export const sharedPreviewProps: SharedProps = {
 	logoURL: 'https://pocket-id.org/img/logo.png',
-	appName: 'Pocket ID',
+	appName: 'YuriID',
 	appURL: 'https://id.example.com'
 };
 

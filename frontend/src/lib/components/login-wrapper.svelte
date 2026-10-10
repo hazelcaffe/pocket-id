@@ -58,37 +58,35 @@
 			: 'justify-center'}"
 	>
 		<div
-			class="relative z-10 flex h-full w-full max-w-[650px] p-16 2xl:max-w-[800px] {cn(
-				showAlternativeSignInMethodButton && 'pb-0'
-			)}"
+			class="relative z-10 flex h-full w-full max-w-[600px] px-10 py-16 2xl:max-w-[720px]"
 		>
 			<div class="flex h-full w-full flex-col overflow-hidden">
 				<div class="relative flex grow flex-col items-center justify-center overflow-auto p-1">
 					{@render children()}
-				</div>
-				{#if showAlternativeSignInMethodButton}
-					<div class="mb-4 flex items-center justify-center">
+					{#if showAlternativeSignInMethodButton}
+						<!-- YuriID: small muted link directly under the primary action, like the reference layout -->
 						<a
 							href={alternativeSignInButton.href}
-							class="text-muted-foreground text-xs transition-colors hover:underline"
+							class="text-muted-foreground hover:text-foreground mt-6 text-xs transition-colors"
 						>
 							{alternativeSignInButton.label}
 						</a>
-					</div>
-				{/if}
+					{/if}
+				</div>
 			</div>
 		</div>
 
 		{#if backgroundImageExists}
 			<!-- Background image -->
 			<div
-				class="absolute top-0 right-0 bottom-0 left-[650px] z-0 m-6 overflow-hidden rounded-[40px] 2xl:left-[800px]"
+				class="absolute top-0 right-0 bottom-0 left-[600px] z-0 m-6 overflow-hidden rounded-[40px] 2xl:left-[720px]"
 			>
 				<img
 					src={cachedBackgroundImage.getUrl()}
 					class="{cn(
 						animate && 'animate-bg-zoom'
-					)} h-screen w-[calc(100vw-650px)] object-cover 2xl:w-[calc(100vw-800px)]"
+					)} h-full w-full object-cover"
+					style="object-position: var(--login-bg-position, 55% 35%);"
 					alt={m.login_background()}
 				/>
 			</div>
@@ -96,8 +94,8 @@
 	</div>
 {:else}
 	<div
-		class="flex min-h-dvh items-center justify-center bg-cover bg-center text-center"
-		style="background-image: url({cachedBackgroundImage.getUrl()});"
+		class="flex min-h-dvh items-center justify-center bg-cover text-center"
+		style="background-image: url({cachedBackgroundImage.getUrl()}); background-position: var(--login-bg-position, 55% 35%);"
 	>
 		<Card.Root
 			class={{

@@ -92,51 +92,12 @@
 </script>
 
 {#if useDefaultLogo}
-	<svg
-		class={cn('aspect-square', isLightMode ? 'text-black' : 'text-white', className)}
-		viewBox="-346.211 -706.48 712.96 712.96"
-		role="img"
-		aria-label={logoAlt}
-		xmlns="http://www.w3.org/2000/svg"
-	>
-		<path
-			fill="currentColor"
-			opacity={animateDefaultLogo ? 0 : 1}
-			d={animateDefaultLogo ? initialLogoPath : finalLogoPath}
-		>
-			{#if animateDefaultLogo}
-				<animate
-					attributeName="opacity"
-					dur="1.5s"
-					begin="0s"
-					fill="freeze"
-					keyTimes="0; 0.15; 1"
-					values="0; 1; 1"
-				/>
-				<animateTransform
-					attributeName="transform"
-					type="rotate"
-					dur="1.5s"
-					begin="0s"
-					fill="freeze"
-					calcMode="spline"
-					keyTimes="0; 0.20; 0.26; 0.44; 1"
-					keySplines="0 0 1 1; 0 0 1 1; 0.35 0 0.35 1; 0 0 1 1"
-					values="-90 0 -439.094; -90 0 -439.094; -90 0 -439.094; 0 0 -439.094; 0 0 -439.094"
-				/>
-				<animate
-					attributeName="d"
-					dur="1.5s"
-					begin="0s"
-					fill="freeze"
-					calcMode="spline"
-					keyTimes="0; 0.4; 0.4681; 0.53; 0.5689; 0.63; 0.68; 0.7944; 1"
-					keySplines="0 0 1 1; 0.402 0 0.6982 0.4985; 0.2986 0.4514 0.6022 0.9053; 0.2862 0.178 0.6233 0.5935; 0.2988 0.5071 0.6368 1; 0 0 1 1; 0.5175 0 0.6923 0.5; 0.1712 0.5 0.4163 1"
-					values={animationValues}
-				/>
-			{/if}
-		</path>
-	</svg>
+	<!-- YuriID: the bundled default logo is the Yuri Systems icon -->
+	<img
+		class={cn('aspect-square object-cover', className)}
+		src="/img/static-logo-512.png"
+		alt={logoAlt}
+	/>
 {:else}
 	<img
 		class={cn('aspect-square object-contain', className)}
