@@ -1,0 +1,80 @@
+# YuriID production example: YuriID + PostgreSQL, behind a TLS-terminating reverse proxy on the same host.
+# Nothing here is published to the internet directly: YuriID listens on 127.0.0.1 only and the host's
+# reverse proxy (Caddy/nginx/Traefik) forwards https://<APP_URL host> to it.
+#
+#   cp .env.example .env && $EDITOR .env          # fill in every <...>
+#   mkdir -p secrets && openssl rand -base64 32 > secrets/encryption_key && chmod 600 secrets/*
+#   openssl rand -base64 32 | tr -d '\n' > secrets/postgres_password
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# The image is built from this repository (no registry involved). Pin a git tag/commit for reproducible builds.
+name: yuriid
+
+services:
+  yuriid:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: yuriid:${YURIID_TAG:-prod}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_PROVIDER: postgres
+      # The password is read from the secret file by the entrypoint below, never stored in .env
+      DB_CONNECTION_STRING_FILE: /run/secrets/db_connection_string
+      ENCRYPTION_KEY_FILE: /run/secrets/encryption_key
+    ports:
+      - "127.0.0.1:${YURIID_PORT:-1411}:1411"
+    volumes:
+      - yuriid-data:/app/data            # uploads (logos, avatars, backgrounds), GeoLite DB, keys
+    secrets:
+      - encryption_key
+      - db_connection_string
+    # If the SMTP server is only reachable through a private network/VPN name, pin it here, e.g.
+    # extra_hosts: ["mail.example.org:100.64.0.10"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/app/pocket-id", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: yuriid
+      POSTGRES_DB: yuriid
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    secrets:
+      - postgres_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yuriid -d yuriid"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+volumes:
+  yuriid-data:
+  postgres-data:
+
+secrets:
+  encryption_key:
+    file: ./secrets/encryption_key
+  postgres_password:
+    file: ./secrets/postgres_password
+  # postgres://yuriid:<password>@postgres:5432/yuriid  (same password as secrets/postgres_password)
+  db_connection_string:
+    file: ./secrets/db_connection_string

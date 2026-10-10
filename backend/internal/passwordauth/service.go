@@ -35,7 +35,7 @@ const (
 )
 
 const (
-	CodeInvalidCredentials apperror.Code = "invalid_credentials"
+	CodeInvalidCredentials apperror.Code = "invalid_credentials" //nolint:gosec // an error code, not a credential
 	CodeEmailNotVerified   apperror.Code = "email_not_verified"
 	CodeWeakPassword       apperror.Code = "weak_password"
 	CodeWrongPassword      apperror.Code = "wrong_current_password"
@@ -478,6 +478,10 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword, ipAddre
 			return err
 		}
 		if err := tx.Model(&model.User{}).Where("id = ?", userID).Update("email_verified", true).Error; err != nil {
+			return err
+		}
+		// Whoever triggered the reset may be locking out an attacker: sign the account out everywhere
+		if err := s.revokeSessions(ctx, tx, userID); err != nil {
 			return err
 		}
 		s.auditLog.Create(ctx, auditlogs.Event("PASSWORD_RESET"), ipAddress, userAgent, userID, auditlogs.Data{}, tx)

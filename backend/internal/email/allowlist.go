@@ -9,7 +9,8 @@ import (
 // YuriID safety net for test/staging instances that use a real SMTP server.
 // When EMAIL_RECIPIENT_ALLOWLIST is set (comma-separated addresses, or "@domain" entries), every email
 // to a recipient that is not on the list is dropped before any SMTP connection is opened.
-// Unset = no restriction (normal production behaviour).
+// Unset or empty = no restriction (normal production behaviour). A non-empty value is flagged loudly at
+// startup so a test allowlist cannot silently ship to production and swallow real users' mail.
 const recipientAllowlistEnv = "EMAIL_RECIPIENT_ALLOWLIST"
 
 func recipientAllowed(addr string) bool {
@@ -36,4 +37,20 @@ func recipientAllowed(addr string) bool {
 func logBlockedRecipient(template string) {
 	// The address itself is not logged
 	slog.Warn("YuriID: email suppressed by EMAIL_RECIPIENT_ALLOWLIST", slog.String("template", template))
+}
+
+// logRecipientAllowlistStatus flags an active allowlist at startup (entry count only, never the addresses)
+func logRecipientAllowlistStatus() {
+	raw := strings.TrimSpace(os.Getenv(recipientAllowlistEnv))
+	if raw == "" {
+		return
+	}
+	n := 0
+	for _, entry := range strings.Split(raw, ",") {
+		if strings.TrimSpace(entry) != "" {
+			n++
+		}
+	}
+	slog.Warn("YuriID: EMAIL_RECIPIENT_ALLOWLIST is active - mail to any other recipient is silently dropped. Leave it empty in production.",
+		slog.Int("entries", n))
 }

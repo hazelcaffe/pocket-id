@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
+	"github.com/pocket-id/pocket-id/backend/internal/common"
 	"github.com/pocket-id/pocket-id/backend/internal/model"
 	testutils "github.com/pocket-id/pocket-id/backend/internal/utils/testing"
 )
@@ -170,4 +171,49 @@ func TestClaimsServiceAppliesSigningAlgToIDTokenHeader(t *testing.T) {
 			require.Equal(t, alg.String(), session.IDTokenHeaders().Get("alg"))
 		})
 	}
+}
+
+// YuriID: unverified addresses are withheld (account-takeover guard for RPs that match by email), and
+// OIDC_GROUPS_IN_PROFILE mirrors Authentik's profile mapping, which also carried "groups".
+func TestClaimsServiceYuriIDEmailAndGroups(t *testing.T) {
+	db := testutils.NewDatabaseForTest(t)
+	service := newClaimsService(db, fakeCustomClaimSource{}, "https://id.example.com", nil)
+
+	group := model.UserGroup{Base: model.Base{ID: "yg-1"}, Name: "admins", FriendlyName: "Admins"}
+	require.NoError(t, db.Create(&group).Error)
+	user := model.User{
+		Base:          model.Base{ID: "yuri-user"},
+		Username:      "yuri",
+		Email:         stringPointer("victim@example.com"),
+		EmailVerified: false,
+	}
+	require.NoError(t, db.Create(&user).Error)
+	require.NoError(t, db.Model(&user).Association("UserGroups").Append(&group))
+
+	prevEmail, prevGroups := common.EnvConfig.OidcReleaseUnverifiedEmail, common.EnvConfig.OidcGroupsInProfile
+	t.Cleanup(func() {
+		common.EnvConfig.OidcReleaseUnverifiedEmail, common.EnvConfig.OidcGroupsInProfile = prevEmail, prevGroups
+	})
+
+	common.EnvConfig.OidcReleaseUnverifiedEmail = false
+	claims, err := service.GetUserClaims(t.Context(), user.ID, []string{"openid", "email"})
+	require.NoError(t, err)
+	require.NotContains(t, claims, "email", "unverified email must be withheld by default")
+	require.NotContains(t, claims, "email_verified")
+
+	common.EnvConfig.OidcReleaseUnverifiedEmail = true
+	claims, err = service.GetUserClaims(t.Context(), user.ID, []string{"openid", "email"})
+	require.NoError(t, err)
+	require.Equal(t, "victim@example.com", claims["email"])
+	require.Equal(t, false, claims["email_verified"])
+
+	common.EnvConfig.OidcGroupsInProfile = false
+	claims, err = service.GetUserClaims(t.Context(), user.ID, []string{"openid", "profile"})
+	require.NoError(t, err)
+	require.NotContains(t, claims, "groups")
+
+	common.EnvConfig.OidcGroupsInProfile = true
+	claims, err = service.GetUserClaims(t.Context(), user.ID, []string{"openid", "profile"})
+	require.NoError(t, err)
+	require.Equal(t, []string{"admins"}, claims["groups"])
 }

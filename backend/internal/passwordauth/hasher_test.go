@@ -82,3 +82,14 @@ func TestUnusable(t *testing.T) {
 		}
 	}
 }
+
+func TestMalformedBcryptPrefixDoesNotPanic(t *testing.T) {
+	for _, h := range []string{"bcrypt$", "bcrypt_sha256$nothing-here"} {
+		if err := ValidateImportableHash(h); err == nil {
+			t.Fatalf("%q must be rejected", h)
+		}
+		if ok, _, _ := VerifyPassword("whatever-password", h); ok {
+			t.Fatalf("%q must not verify", h)
+		}
+	}
+}

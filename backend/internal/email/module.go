@@ -46,6 +46,8 @@ type address struct {
 }
 
 func New(db *gorm.DB) (*Module, error) {
+	logRecipientAllowlistStatus()
+
 	// Preload both template variants so missing or invalid embedded templates fail during startup
 	htmlTemplates, err := prepareHTMLTemplates(templatePaths)
 	if err != nil {

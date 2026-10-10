@@ -149,12 +149,15 @@ func (s *ClaimsService) GetUserClaims(ctx context.Context, userID string, scopes
 	// Only release the email claims when the user actually has an email. Emitting
 	// email_verified alongside a null/absent email (OIDC Core §5.1) is malformed and can
 	// mislead relying parties that key trust decisions on email_verified.
-	if slices.Contains(scopes, "email") && user.Email != nil && *user.Email != "" {
+	// YuriID: an unverified address (e.g. just changed in account settings) is withheld unless explicitly allowed,
+	// so relying parties that match accounts by email alone cannot be tricked into an account takeover.
+	releaseEmail := user.EmailVerified || common.EnvConfig.OidcReleaseUnverifiedEmail
+	if slices.Contains(scopes, "email") && user.Email != nil && *user.Email != "" && releaseEmail {
 		claims["email"] = *user.Email
 		claims["email_verified"] = user.EmailVerified
 	}
 
-	if slices.Contains(scopes, "groups") {
+	if slices.Contains(scopes, "groups") || (common.EnvConfig.OidcGroupsInProfile && slices.Contains(scopes, "profile")) {
 		userGroups := make([]string, len(user.UserGroups))
 		for i, group := range user.UserGroups {
 			userGroups[i] = group.Name

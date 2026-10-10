@@ -1,7 +1,10 @@
+import { safeRedirectPath } from '#lib/utils/redirection-util.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ url }) => {
 	return {
-		redirect: url.searchParams.get('redirect') || undefined
+		redirect: url.searchParams.get('redirect')
+			? safeRedirectPath(url.searchParams.get('redirect'))
+			: undefined
 	};
 };

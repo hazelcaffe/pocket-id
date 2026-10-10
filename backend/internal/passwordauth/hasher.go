@@ -116,8 +116,12 @@ func ValidateImportableHash(encoded string) error {
 		return nil
 	case strings.HasPrefix(encoded, "bcrypt_sha256$"), strings.HasPrefix(encoded, "bcrypt$"),
 		strings.HasPrefix(encoded, "$2a$"), strings.HasPrefix(encoded, "$2b$"), strings.HasPrefix(encoded, "$2y$"):
-		raw := encoded[strings.Index(encoded, "$2"):]
-		if _, err := bcrypt.Cost([]byte(raw)); err != nil {
+		i := strings.Index(encoded, "$2")
+		if i < 0 {
+			// e.g. "bcrypt$" without an embedded $2x$ hash: malformed, and must not panic
+			return ErrUnsupportedHash
+		}
+		if _, err := bcrypt.Cost([]byte(encoded[i:])); err != nil {
 			return ErrUnsupportedHash
 		}
 		return nil
@@ -168,10 +172,10 @@ func parseArgon2PHC(encoded string) (argonParams, error) {
 	if p.salt, err = decodeB64Loose(parts[4]); err != nil {
 		return argonParams{}, ErrUnsupportedHash
 	}
-	if p.key, err = decodeB64Loose(parts[5]); err != nil || len(p.key) < 16 {
+	if p.key, err = decodeB64Loose(parts[5]); err != nil || len(p.key) < 16 || len(p.key) > 1024 {
 		return argonParams{}, ErrUnsupportedHash
 	}
-	p.keyLen = uint32(len(p.key))
+	p.keyLen = uint32(len(p.key)) //nolint:gosec // bounded to 16..1024 above
 	return p, nil
 }
 

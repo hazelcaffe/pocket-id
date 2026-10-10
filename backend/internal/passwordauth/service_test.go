@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -165,7 +164,7 @@ func TestResetAndChangePassword(t *testing.T) {
 	require.Error(t, svc.ResetPassword(ctx, tok, "short", "", ""))
 	require.NoError(t, svc.ResetPassword(ctx, tok, "brand-new-password", "", ""))
 	err := svc.ResetPassword(ctx, tok, "another-password", "", "")
-	require.True(t, strings.Contains(err.Error(), "invalid or expired"), "reset token must be single-use")
+	require.ErrorContains(t, err, "invalid or expired", "reset token must be single-use")
 
 	// Reset proves control of the inbox, so login works right away
 	_, _, err = svc.Login(ctx, cfg, "bob", "brand-new-password", "", "", "")
@@ -182,4 +181,34 @@ func TestResetAndChangePassword(t *testing.T) {
 	require.NoError(t, svc.ChangePassword(ctx, u.ID, "brand-new-password", "changed-password-1", "", ""))
 	_, _, err = svc.Login(ctx, cfg, "bob", "changed-password-1", "", "", "")
 	require.NoError(t, err)
+}
+
+func TestResetRevokesSessions(t *testing.T) {
+	svc, mail, db, cfg := newTestService(t)
+	ctx := t.Context()
+	email := "carol@example.test"
+	u := model.User{Username: "carol", Email: &email, EmailVerified: true}
+	require.NoError(t, db.Create(&u).Error)
+
+	before := time.Now().Add(-time.Minute)
+	revoked, err := svc.IsSessionRevoked(ctx, u.ID, before)
+	require.NoError(t, err)
+	require.False(t, revoked, "no revocation recorded yet")
+
+	require.NoError(t, svc.ForgotPassword(ctx, cfg, email))
+	sent := mail.waitFor(t, 1)
+	require.NoError(t, svc.ResetPassword(ctx, tokenFrom(t, sent[0].link), "brand-new-password", "", ""))
+
+	revoked, err = svc.IsSessionRevoked(ctx, u.ID, before)
+	require.NoError(t, err)
+	require.True(t, revoked, "sessions issued before the reset must be rejected")
+
+	revoked, err = svc.IsSessionRevoked(ctx, u.ID, time.Now().Add(2*time.Second))
+	require.NoError(t, err)
+	require.False(t, revoked, "sessions issued after the reset stay valid")
+
+	// Other users are unaffected
+	revoked, err = svc.IsSessionRevoked(ctx, "00000000-0000-0000-0000-000000000000", before)
+	require.NoError(t, err)
+	require.False(t, revoked)
 }

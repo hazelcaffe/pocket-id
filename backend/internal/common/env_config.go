@@ -68,11 +68,16 @@ type EnvConfigSchema struct {
 	AnalyticsDisabled         bool             `env:"ANALYTICS_DISABLED"`
 	AllowDowngrade            bool             `env:"ALLOW_DOWNGRADE"`
 	AllowInsecureCallbackURLs bool             `env:"ALLOW_INSECURE_CALLBACK_URLS"`
-	InternalAppURL            string           `env:"INTERNAL_APP_URL"`
-	UiConfigDisabled          bool             `env:"UI_CONFIG_DISABLED"`
-	DisableRateLimiting       bool             `env:"DISABLE_RATE_LIMITING"`
-	VersionCheckDisabled      bool             `env:"VERSION_CHECK_DISABLED"`
-	StaticApiKey              string           `env:"STATIC_API_KEY" options:"file"`
+	// YuriID: release the "email" claim to OIDC clients even while the address is unverified (default: withheld,
+	// because apps like Kutt and Forgejo's auto account linking match users by email without checking email_verified)
+	OidcReleaseUnverifiedEmail bool `env:"OIDC_RELEASE_UNVERIFIED_EMAIL"`
+	// YuriID: also emit the "groups" claim for the "profile" scope, like Authentik's default profile mapping
+	OidcGroupsInProfile  bool   `env:"OIDC_GROUPS_IN_PROFILE"`
+	InternalAppURL       string `env:"INTERNAL_APP_URL"`
+	UiConfigDisabled     bool   `env:"UI_CONFIG_DISABLED"`
+	DisableRateLimiting  bool   `env:"DISABLE_RATE_LIMITING"`
+	VersionCheckDisabled bool   `env:"VERSION_CHECK_DISABLED"`
+	StaticApiKey         string `env:"STATIC_API_KEY" options:"file"`
 
 	FileBackend                     string `env:"FILE_BACKEND" options:"toLower"`
 	UploadPath                      string `env:"UPLOAD_PATH"`

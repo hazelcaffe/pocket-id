@@ -1,7 +1,10 @@
 package middleware
 
 import (
+	"context"
+	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -17,9 +20,13 @@ const apiKeyHeader = "X-API-Key"
 
 // NewAuthorization creates the authorization middleware with every credential Pocket ID accepts
 // A browser session is tried before an API key, so a signed-in browser is never mistaken for an API client
-func NewAuthorization(apiKeyModule *apikey.Module, userService *service.UserService, jwtService *service.JwtService) *authz.Middleware {
+func NewAuthorization(apiKeyModule *apikey.Module, userService *service.UserService, jwtService *service.JwtService, revocation ...SessionRevocationChecker) *authz.Middleware {
+	session := NewSessionAuthenticator(jwtService, userService)
+	if len(revocation) > 0 {
+		session.revocation = revocation[0]
+	}
 	return authz.NewMiddleware(
-		NewSessionAuthenticator(jwtService, userService),
+		session,
 		NewAPIKeyAuthenticator(apiKeyModule),
 	)
 }
@@ -28,6 +35,13 @@ func NewAuthorization(apiKeyModule *apikey.Module, userService *service.UserServ
 type SessionAuthenticator struct {
 	jwtService  *service.JwtService
 	userService *service.UserService
+	revocation  SessionRevocationChecker
+}
+
+// SessionRevocationChecker reports whether a user's session tokens issued at a given time were revoked
+// (YuriID: a password reset signs the user out everywhere)
+type SessionRevocationChecker interface {
+	IsSessionRevoked(ctx context.Context, userID string, issuedAt time.Time) (bool, error)
 }
 
 func NewSessionAuthenticator(jwtService *service.JwtService, userService *service.UserService) *SessionAuthenticator {
@@ -66,6 +80,17 @@ func (a *SessionAuthenticator) Authenticate(c *gin.Context) (*authz.Principal, e
 	}
 	if user.Disabled {
 		return nil, apperror.UserDisabled()
+	}
+	if a.revocation != nil {
+		revoked, err := a.revocation.IsSessionRevoked(c.Request.Context(), user.ID, authenticationTime)
+		if err != nil {
+			// Fail closed: an unreadable revocation list must not keep a possibly revoked session alive
+			slog.ErrorContext(c.Request.Context(), "Failed to check session revocation", slog.Any("error", err))
+			return nil, apperror.NotSignedIn()
+		}
+		if revoked {
+			return nil, apperror.NotSignedIn()
+		}
 	}
 
 	return &authz.Principal{

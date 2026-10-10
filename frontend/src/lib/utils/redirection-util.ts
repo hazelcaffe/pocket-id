@@ -47,3 +47,24 @@ export function getAuthRedirectPath(url: URL, user: User | null) {
 
 	return null;
 }
+
+// YuriID: only same-origin, absolute paths are accepted as post-login redirect targets.
+// Rejects absolute URLs, protocol-relative ("//evil.example") and backslash tricks ("/\evil.example"),
+// so a crafted ?redirect= link can never bounce a freshly signed-in user to another site.
+export function safeRedirectPath(value: string | null | undefined, fallback = '/settings'): string {
+	if (!value || !value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) {
+		return fallback;
+	}
+	// eslint-disable-next-line no-control-regex
+	if (/[\u0000-\u001f\\]/.test(value)) {
+		return fallback;
+	}
+	try {
+		const base = 'http://same-origin.invalid';
+		const resolved = new URL(value, base);
+		if (resolved.origin !== base) return fallback;
+		return resolved.pathname + resolved.search + resolved.hash;
+	} catch {
+		return fallback;
+	}
+}
